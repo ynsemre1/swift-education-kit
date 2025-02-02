@@ -3,7 +3,7 @@
 # gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 
 # Configuration Files
-Configuration/Secrets.xcconfig
+Climate/Clima/Configration/Secrets.xcconfig
 
 ## User settings
 xcuserdata/
