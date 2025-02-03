@@ -17,9 +17,20 @@ struct CoinManager {
     //Create an optional delegate that will have to implement the delegate methods.
     //Which we can notify when we have updated the price.
     var delegate: CoinManagerDelegate?
+    
+    private let baseURL:String
+    private let apiKey: String
 
-    let baseURL = "https://rest.coinapi.io/v1/exchangerate/BTC"
-    let apiKey = "c2e2d08a-b15c-49d3-b55c-fa10dd8d7227"
+    init() {
+        guard
+            let key = Bundle.main.object(forInfoDictionaryKey: "API_KEY")
+                as? String
+        else {
+            fatalError("API_KEY is missing!")
+        }
+        self.apiKey = key
+        self.baseURL = "https://rest.coinapi.io/v1/exchangerate/BTC"
+    }
 
     let currencyArray = [
         "AUD", "BRL", "CAD", "CNY", "EUR", "GBP", "HKD", "IDR", "ILS", "INR",
