@@ -5,6 +5,9 @@
 # Configuration Files
 Secrets.xcconfig
 
+#DS Store
+.DS_Store
+
 ## User settings
 xcuserdata/
 
