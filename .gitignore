@@ -69,7 +69,4 @@ fastlane/test_output
 
 **/.DS_Store
 
-GoogleService-Info.plist
-GoogleService-Info.plist
-FlashChat/Flash Chat iOS13/GoogleService-Info.plist
-GoogleService-Info.plist
+**/GoogleService-Info.plist
