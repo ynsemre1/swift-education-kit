@@ -23,7 +23,7 @@ class LoginViewController: UIViewController {
                     print("Login Error: \(e.localizedDescription)")
                 } else {
                     print("Login Successful! Navigating to Chat Screen")
-                    self.performSegue(withIdentifier: "LoginToChat", sender: self)
+                    self.performSegue(withIdentifier: K.loginSegue, sender: self)
                 }
             }
         }
