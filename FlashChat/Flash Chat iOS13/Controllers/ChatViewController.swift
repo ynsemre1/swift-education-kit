@@ -15,12 +15,11 @@ class ChatViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var messageTextfield: UITextField!
+    
+    var message: [Message] = []
 
-    var message: [Message] = [
-        Message(sender: "1@2.com", body: "123"),
-        Message(sender: "1@2.com", body: "123"),
-    ]
-
+    let db = Firestore.firestore()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -30,9 +29,58 @@ class ChatViewController: UIViewController {
         navigationItem.hidesBackButton = true
         
         tableView.register(UINib(nibName: K.cellNibName, bundle: nil), forCellReuseIdentifier: K.cellIdentifier)
+        
+        loadMessage()
+    }
+        
+    func loadMessage() {
+        db.collection(K.FStore.collectionName).order(by: K.FStore.dateField).addSnapshotListener { (querySnapshot, error) in
+            self.message = []
+
+            if let error {
+                print("Error fetching documents: \(error.localizedDescription)")
+            } else {
+                if let snapshotDocuments = querySnapshot?.documents {
+                    for doc in snapshotDocuments{
+                        let data = doc.data()
+                        if let messageSender = data[K.FStore.senderField] as? String, let messageBody = data[K.FStore.bodyField] as? String {
+                            let newMessage = Message(sender: messageSender, body: messageBody)
+                            self.message.append(newMessage)
+                            
+                            DispatchQueue.main.async {
+                                self.tableView.reloadData()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @IBAction func sendPressed(_ sender: UIButton) {
+        // Trim whitespace and check if the message is empty
+        if let messageBody = messageTextfield.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !messageBody.isEmpty,
+           let messageSender = Auth.auth().currentUser?.email {
+            
+            db.collection(K.FStore.collectionName).addDocument(data: [
+                K.FStore.senderField: messageSender,
+                K.FStore.bodyField: messageBody,
+                K.FStore.dateField: Date().timeIntervalSince1970
+            ]) { (error) in
+                if let e = error {
+                    print("There is/are issue with sending message: \(e.localizedDescription)")
+                } else {
+                    print("✅ Message sent successfully!")
+                    DispatchQueue.main.async {
+                        self.messageTextfield.text = "" // Mesaj kutusunu temizle
+                    }
+                }
+            }
+        } else {
+            print("⚠️ Cannot send an empty message!")
+            showMessage("You cant send an empty message! 🚀")
+        }
     }
 
     @IBAction func logOutPressed(_ sender: UIBarButtonItem) {
@@ -47,6 +95,16 @@ class ChatViewController: UIViewController {
         } catch let signOutError {
             print("❌ Error signing out: \(signOutError.localizedDescription)")
         }
+    }
+    
+    func showMessage(_ message: String) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { // 1.5 saniye sonra kapat
+            alert.dismiss(animated: true, completion: nil)
+        }
+        
+        present(alert, animated: true, completion: nil)
     }
 }
 
